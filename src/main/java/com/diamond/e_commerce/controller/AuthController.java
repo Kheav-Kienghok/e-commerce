@@ -1,10 +1,13 @@
 package com.diamond.e_commerce.controller;
 
+import java.util.Map;
+
 import com.diamond.e_commerce.dto.RegisterRequest;
 import com.diamond.e_commerce.dto.UserResponse;
 import com.diamond.e_commerce.response.ApiResponse;
 import com.diamond.e_commerce.service.AuthService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.diamond.e_commerce.dto.LoginRequest;
 
 import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -19,11 +23,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-  private final AuthService authService; // Inject AuthService
+  @Autowired
+  private AuthService authService; // Inject AuthService
 
-  public AuthController(AuthService authService) {
-    this.authService = authService;
-  }
 
   @PostMapping("/register")
   public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
@@ -33,8 +35,8 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<ApiResponse<UserResponse>> login(@Valid @RequestBody LoginRequest request) {
-    ApiResponse<UserResponse> response = authService.login(request);
+  public ResponseEntity<ApiResponse<Map<String, String>>> login(@Valid @RequestBody LoginRequest request) {
+    ApiResponse<Map<String,String>> response = authService.login(request);
     return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatusCode()));
   }
 }

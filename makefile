@@ -42,6 +42,14 @@ install:
 # Run Spring Boot project
 .PHONY: run
 run:
+	@if [ -z "$$SERVER_PORT" ]; then \
+		if [ -f .env ]; then \
+			echo "Loading environment variables from .env"; \
+			set -a; . .env; set +a; \
+		else \
+			echo ".env file not found"; \
+		fi \
+	fi; \
 	$(MVN) spring-boot:run
 
 # Run with specific Spring profile

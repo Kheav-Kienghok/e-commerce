@@ -1,5 +1,7 @@
 package com.diamond.e_commerce.service.impl;
 
+import java.util.Map;
+
 import com.diamond.e_commerce.dto.LoginRequest;
 import com.diamond.e_commerce.dto.RegisterRequest;
 import com.diamond.e_commerce.dto.UserResponse;
@@ -9,22 +11,26 @@ import com.diamond.e_commerce.repository.UserRepository;
 import com.diamond.e_commerce.response.ApiResponse;
 import com.diamond.e_commerce.service.AuthService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import com.diamond.e_commerce.security.JwtUtils;
+
 @Service
 public class AuthServiceImpl implements AuthService {
 
-  private final UserRepository userRepository;
-  private final PasswordEncoder passwordEncoder; // for hashing passwords
+  @Autowired
+  private UserRepository userRepository;
 
-  public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-    this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
-  }
+  @Autowired  
+  private PasswordEncoder passwordEncoder; // for hashing passwords
+
+  @Autowired
+  private JwtUtils jwtUtils; // Inject JwtUtils
 
   @Override
   public ApiResponse<UserResponse> register(RegisterRequest request) {
@@ -48,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public ApiResponse<UserResponse> login(LoginRequest request) {
+  public ApiResponse<Map<String, String>> login(LoginRequest request) {
 
     Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
     if (optionalUser.isEmpty()) {
@@ -60,8 +66,12 @@ public class AuthServiceImpl implements AuthService {
       return ApiResponse.error(HttpStatus.UNAUTHORIZED.value(), "Invalid email or password");
     }
 
-    // In production, generate JWT here instead of returning full user
-    UserResponse userResponse = new UserResponse(user.getId(), user.getUsername(), user.getEmail());
-    return ApiResponse.success(HttpStatus.OK.value(), "Login successful", userResponse);
+    // Geenrate JWT Token
+    String token = jwtUtils.generateToken(user);
+
+    // Return token as key=value
+    Map<String, String> tokenMap = Map.of("token", token);
+
+    return ApiResponse.success(HttpStatus.OK.value(), "Login successful", tokenMap);
   }
 }

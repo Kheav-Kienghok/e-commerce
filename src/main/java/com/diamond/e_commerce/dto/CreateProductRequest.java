@@ -2,16 +2,12 @@ package com.diamond.e_commerce.dto;
 
 import java.math.BigDecimal;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
-
 @Data
-public class ProductRequest {
-  
+public class CreateProductRequest {
+
   @NotBlank(message = "Product name is required")
   private String name;
 

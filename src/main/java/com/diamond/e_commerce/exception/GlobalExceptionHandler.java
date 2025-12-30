@@ -15,24 +15,31 @@ import com.diamond.e_commerce.dto.RegisterRequest;
 import com.diamond.e_commerce.response.ApiResponse;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler implements ExceptionResponseHandler {
+
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<ApiResponse<Void>> handleNotFound(ResourceNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(notFound(ex.getMessage()));
+  }
+
+  @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+  public ResponseEntity<ApiResponse<Void>> handleAccessDenied(
+      org.springframework.security.access.AccessDeniedException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(forbidden(ex.getMessage()));
+  }
 
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
-    ApiResponse<Void> response = ApiResponse.<Void>builder()
-        .statusCode(HttpStatus.METHOD_NOT_ALLOWED.value())
-        .message("Request method not supported")
-        .build();
-    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(response);
+    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+        .body(badRequest("Request method not supported"));
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(
-      MethodArgumentNotValidException ex) {
-
+  public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
     Map<String, String> errors = new LinkedHashMap<>();
 
-    // Get field order from DTO class
     String[] fieldOrder = java.util.Arrays.stream(RegisterRequest.class.getDeclaredFields())
         .map(f -> f.getName())
         .toArray(String[]::new);
@@ -45,28 +52,23 @@ public class GlobalExceptionHandler {
         })
         .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
-    ApiResponse<Map<String, String>> response = ApiResponse.<Map<String, String>>builder()
-        .statusCode(HttpStatus.BAD_REQUEST.value())
-        .message("Validation failed")
-        .data(errors)
-        .build();
-
-    return ResponseEntity.badRequest().body(response);
+    return ResponseEntity.badRequest().body(
+        ApiResponse.<Map<String, String>>builder()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .message("Validation failed")
+            .data(errors)
+            .build());
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ApiResponse<Void>> handleEmptyRequestBody(HttpMessageNotReadableException ex) {
-    ApiResponse<Void> response = ApiResponse.<Void>builder()
-        .statusCode(HttpStatus.BAD_REQUEST.value())
-        .message("Request body is missing or invalid")
-        .build();
-    return ResponseEntity.badRequest().body(response);
+    return ResponseEntity.badRequest()
+        .body(badRequest("Request body is missing or invalid"));
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
-    return ResponseEntity
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(ApiResponse.error(500, "Internal server error"));
+  public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception ex) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(internalServerError(ex.getMessage()));
   }
 }

@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.diamond.e_commerce.entity.Product;
 
-public interface ProductRepository extends JpaRepository<Product, Long>{
-  Page<Product> findByName(String name, Pageable pageable);
+public interface ProductRepository extends JpaRepository<Product, Long> {
+  Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
   @Override
   Page<Product> findAll(Pageable pageable);

@@ -1,11 +1,11 @@
-package com.diamond.e_commerce.service;
+package com.diamond.e_commerce.service.interfe;
 
 import java.util.Map;
 
 import com.diamond.e_commerce.dto.LoginRequest;
 import com.diamond.e_commerce.dto.RegisterRequest;
-import com.diamond.e_commerce.dto.UserResponse;
 import com.diamond.e_commerce.response.ApiResponse;
+import com.diamond.e_commerce.response.UserResponse;
 
 public interface AuthService {
 

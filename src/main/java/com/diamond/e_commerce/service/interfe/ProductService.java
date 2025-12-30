@@ -1,11 +1,13 @@
-package com.diamond.e_commerce.service;
+package com.diamond.e_commerce.service.interfe;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.diamond.e_commerce.dto.ProductRequest;
+import com.diamond.e_commerce.dto.CreateProductRequest;
+import com.diamond.e_commerce.dto.UpdateProductRequest;
 import com.diamond.e_commerce.entity.Product;
 import com.diamond.e_commerce.response.ApiResponse;
+import com.diamond.e_commerce.response.PageResponse;
+import com.diamond.e_commerce.response.ProductResponse;
 
 public interface ProductService {
 
@@ -15,7 +17,7 @@ public interface ProductService {
    * @param request product creation request
    * @return ApiResponse containing created product
    */
-  ApiResponse<Product> create(ProductRequest request);
+  ApiResponse<Product> create(CreateProductRequest request);
 
   /**
    * Update an existing product.
@@ -24,7 +26,7 @@ public interface ProductService {
    * @param request updated product data
    * @return ApiResponse containing updated product
    */
-  ApiResponse<Product> update(Long id, ProductRequest request);
+  ApiResponse<Product> update(Long id, UpdateProductRequest request);
 
   /**
    * Delete a product by ID.
@@ -40,7 +42,7 @@ public interface ProductService {
    * @param pageable pagination information
    * @return ApiResponse containing paginated products
    */
-  ApiResponse<Page<Product>> findAll(Pageable pageable);
+  ApiResponse<PageResponse<ProductResponse>> findAll(Pageable pageable);
 
   /**
    * Search products by name.
@@ -49,5 +51,5 @@ public interface ProductService {
    * @param pageable pagination information
    * @return ApiResponse containing paginated products
    */
-  ApiResponse<Page<Product>> findByName(String name, Pageable pageable);
+  ApiResponse<PageResponse<ProductResponse>> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }

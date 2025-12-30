@@ -45,7 +45,7 @@ run:
 	@if [ -z "$$SERVER_PORT" ]; then \
 		if [ -f .env ]; then \
 			echo "Loading environment variables from .env"; \
-			set -a; . .env; set +a; \
+			set -a; . ./.env; set +a; \
 		else \
 			echo ".env file not found"; \
 		fi \

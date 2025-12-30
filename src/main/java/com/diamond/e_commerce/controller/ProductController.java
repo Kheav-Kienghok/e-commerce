@@ -1,21 +1,30 @@
 package com.diamond.e_commerce.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.diamond.e_commerce.dto.ProductRequest;
+import com.diamond.e_commerce.dto.CreateProductRequest;
+import com.diamond.e_commerce.dto.UpdateProductRequest;
 import com.diamond.e_commerce.entity.Product;
 import com.diamond.e_commerce.response.ApiResponse;
-import com.diamond.e_commerce.service.ProductService;
+import com.diamond.e_commerce.response.PageResponse;
+import com.diamond.e_commerce.response.ProductResponse;
+import com.diamond.e_commerce.service.interfe.ProductService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/products")
@@ -27,24 +36,45 @@ public class ProductController {
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
   public ResponseEntity<ApiResponse<Product>> create(
-      @RequestBody @Valid ProductRequest request) {
+      @RequestBody @Valid CreateProductRequest request) {
 
-    return ResponseEntity.ok(productService.create(request));
+    ApiResponse<Product> response = productService.create(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  // // UPDATE
-  // @PutMapping("/{id}")
-  // public ResponseEntity<ApiResponse<Product>> update(
-  // @PathVariable Long id,
-  // @RequestBody @Valid ProductRequest request) {
+  @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/{id}")
+  public ResponseEntity<ApiResponse<Product>> update(
+      @PathVariable Long id,
+      @RequestBody @Valid UpdateProductRequest request) {
 
-  // return ResponseEntity.ok(productService.update(id, request));
-  // }
+    ApiResponse<Product> response = productService.update(id, request);
+    return ResponseEntity.ok(response);
+  }
 
-  // // DELETE
-  // @DeleteMapping("/{id}")
-  // public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
-  // return ResponseEntity.ok(productService.delete(id));
-  // }
+  @PreAuthorize("hasRole('ADMIN')")
+  @DeleteMapping("/{id}")
+  public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+
+    ApiResponse<Void> response = productService.delete(id);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping()
+  public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> findAll(
+      @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+
+    ApiResponse<PageResponse<ProductResponse>> response = productService.findAll(pageable);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/search")
+  public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> findByName(
+      @RequestParam String name,
+      @PageableDefault(size = 10) Pageable pageable) {
+
+    ApiResponse<PageResponse<ProductResponse>> response = productService.findByNameContainingIgnoreCase(name, pageable);
+    return ResponseEntity.ok(response);
+  }
 
 }

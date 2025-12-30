@@ -25,9 +25,6 @@ public class JwtUtils {
   private final Algorithm algorithm;
 
   public JwtUtils(@Value("${jwt.secret}") String secret) {
-    log.info("Injected JWT secret: {}", secret);
-    System.out.println("Injected JWT secret: " + secret);
-
     this.algorithm = Algorithm.HMAC256(secret);
   }
 

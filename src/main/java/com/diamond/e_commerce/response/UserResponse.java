@@ -1,4 +1,4 @@
-package com.diamond.e_commerce.dto;
+package com.diamond.e_commerce.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

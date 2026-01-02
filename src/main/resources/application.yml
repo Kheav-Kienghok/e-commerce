@@ -29,8 +29,10 @@ spring:
 
   jwt:
     secret: ${JWT_SECRET:defaultSecretKey}
-# logging:
-#   level:
-# org.flywaydb: DEBUG
-# org.hibernate.SQL: DEBUG
-# org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+logging:
+  level:
+    "[org.flywaydb.core]": WARN
+    "[org.hibernate]": ERROR
+    "[org.hibernate.orm.connections.pooling]": ERROR
+    "[org.hibernate.engine.jdbc.connections.internal]": ERROR

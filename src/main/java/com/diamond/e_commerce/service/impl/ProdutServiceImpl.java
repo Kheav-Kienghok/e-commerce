@@ -3,6 +3,7 @@ package com.diamond.e_commerce.service.impl;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,7 +12,9 @@ import org.springframework.stereotype.Service;
 import com.diamond.e_commerce.dto.CreateProductRequest;
 import com.diamond.e_commerce.dto.UpdateProductRequest;
 import com.diamond.e_commerce.entity.Product;
+import com.diamond.e_commerce.entity.User;
 import com.diamond.e_commerce.repository.ProductRepository;
+import com.diamond.e_commerce.repository.UserRepository;
 import com.diamond.e_commerce.response.ApiResponse;
 import com.diamond.e_commerce.response.PageResponse;
 import com.diamond.e_commerce.response.ProductResponse;
@@ -28,6 +31,9 @@ public class ProdutServiceImpl implements ProductService {
 
   private final ProductRepository productRepository;
 
+  @Autowired
+  private UserRepository userRepository;
+
   private Long getCurrentUserId() {
     AuthUser authUser = (AuthUser) SecurityContextHolder
         .getContext()
@@ -37,26 +43,34 @@ public class ProdutServiceImpl implements ProductService {
   }
 
   @Override
-  public ApiResponse<Product> create(CreateProductRequest request) {
+  public ApiResponse<ProductResponse> create(CreateProductRequest request) {
 
     Long userId = getCurrentUserId();
+    if (userId == null) {
+      return ApiResponse.error(401, "Unauthorized");
+    }
+
+    // Load full User entity
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("User not found"));
 
     Product product = Product.builder()
         .name(request.getName())
         .description(request.getDescription())
         .price(request.getPrice())
         .stockQty(request.getStockQty())
-        .createdBy(userId)
+        .createdByUser(user)
         .build();
 
     productRepository.save(product);
     log.info("Product created successfully: id={}, name='{}'", product.getId(), product.getName());
 
-    return ApiResponse.success(201, "Product created successfully", product);
+    ProductResponse response = ProductResponse.fromEntity(product);
+    return ApiResponse.success(201, "Product created successfully", response);
   }
 
   @Override
-  public ApiResponse<Product> update(Long id, UpdateProductRequest request) {
+  public ApiResponse<ProductResponse> update(Long id, UpdateProductRequest request) {
 
     Product product = productRepository.findById(id)
         .orElseThrow(() -> {
@@ -82,7 +96,9 @@ public class ProdutServiceImpl implements ProductService {
     productRepository.save(product);
     log.info("Product updated successfully: id={}, name='{}'", product.getId(), product.getName());
 
-    return ApiResponse.success(200, "Product updated successfully", product);
+    // Return DTO instead of entity
+    ProductResponse response = ProductResponse.fromEntity(product);
+    return ApiResponse.success(200, "Product updated successfully", response);
   }
 
   @Override
@@ -98,7 +114,7 @@ public class ProdutServiceImpl implements ProductService {
     Long userId = getCurrentUserId();
 
     // Manual ownership check
-    if (!product.getCreatedBy().equals(userId)) {
+    if (!product.getCreatedByUser().getId().equals(userId)) {
       log.warn("User {} is not allowed to delete product id={}", userId, id);
       return ApiResponse.error(403, "You are not allowed to delete this product");
     }

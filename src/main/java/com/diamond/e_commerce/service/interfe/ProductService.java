@@ -4,7 +4,6 @@ import org.springframework.data.domain.Pageable;
 
 import com.diamond.e_commerce.dto.CreateProductRequest;
 import com.diamond.e_commerce.dto.UpdateProductRequest;
-import com.diamond.e_commerce.entity.Product;
 import com.diamond.e_commerce.response.ApiResponse;
 import com.diamond.e_commerce.response.PageResponse;
 import com.diamond.e_commerce.response.ProductResponse;
@@ -17,7 +16,7 @@ public interface ProductService {
    * @param request product creation request
    * @return ApiResponse containing created product
    */
-  ApiResponse<Product> create(CreateProductRequest request);
+  ApiResponse<ProductResponse> create(CreateProductRequest request);
 
   /**
    * Update an existing product.
@@ -26,7 +25,7 @@ public interface ProductService {
    * @param request updated product data
    * @return ApiResponse containing updated product
    */
-  ApiResponse<Product> update(Long id, UpdateProductRequest request);
+  ApiResponse<ProductResponse> update(Long id, UpdateProductRequest request);
 
   /**
    * Delete a product by ID.

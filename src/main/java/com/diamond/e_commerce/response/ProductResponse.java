@@ -6,10 +6,12 @@ import java.time.LocalDateTime;
 import com.diamond.e_commerce.entity.Product;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-@JsonPropertyOrder({ "id", "name", "description", "price", "stockQty", "imageUrl", "createdAt" })
+@Builder
+@JsonPropertyOrder({ "id", "name", "description", "price", "stockQty", "imageUrl", "createdAt", "createdByUser" })
 public class ProductResponse {
 
   private Long id;
@@ -20,15 +22,31 @@ public class ProductResponse {
   private String imageUrl;
   private LocalDateTime createdAt;
 
+  // Only show id and username
+  private CreatedByUserDTO createdByUser;
+
+  @Data
+  @Builder
+  @JsonPropertyOrder({ "id", "username" })
+  public static class CreatedByUserDTO {
+    private Long id;
+    private String username;
+  }
+
   public static ProductResponse fromEntity(Product product) {
-    ProductResponse dto = new ProductResponse();
-    dto.setId(product.getId());
-    dto.setName(product.getName());
-    dto.setDescription(product.getDescription());
-    dto.setPrice(product.getPrice());
-    dto.setStockQty(product.getStockQty());
-    dto.setImageUrl(product.getImageUrl());
-    dto.setCreatedAt(product.getCreatedAt().atStartOfDay());
-    return dto;
+    return ProductResponse.builder()
+        .id(product.getId())
+        .name(product.getName())
+        .description(product.getDescription())
+        .price(product.getPrice())
+        .stockQty(product.getStockQty())
+        .imageUrl(product.getImageUrl())
+        .createdAt(product.getCreatedAt().atStartOfDay())
+        .createdByUser(
+            CreatedByUserDTO.builder()
+                .id(product.getCreatedByUser().getId())
+                .username(product.getCreatedByUser().getUsername())
+                .build())
+        .build();
   }
 }

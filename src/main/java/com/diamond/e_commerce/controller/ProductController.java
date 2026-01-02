@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.diamond.e_commerce.dto.CreateProductRequest;
 import com.diamond.e_commerce.dto.UpdateProductRequest;
-import com.diamond.e_commerce.entity.Product;
 import com.diamond.e_commerce.response.ApiResponse;
 import com.diamond.e_commerce.response.PageResponse;
 import com.diamond.e_commerce.response.ProductResponse;
@@ -37,22 +36,22 @@ public class ProductController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
-  public ResponseEntity<ApiResponse<Product>> create(
+  public ResponseEntity<ApiResponse<ProductResponse>> create(
       @RequestBody @Valid CreateProductRequest request) {
 
-    ApiResponse<Product> response = productService.create(request);
+    ApiResponse<ProductResponse> response = productService.create(request);
     log.info("Product created with id={}", response.getData().getId());
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/{id}")
-  public ResponseEntity<ApiResponse<Product>> update(
+  public ResponseEntity<ApiResponse<ProductResponse>> update(
       @PathVariable Long id,
       @RequestBody @Valid UpdateProductRequest request) {
 
     log.info("Updating product id={}", id);
-    ApiResponse<Product> response = productService.update(id, request);
+    ApiResponse<ProductResponse> response = productService.update(id, request);
     log.info("Product updated id={}", response.getData().getId());
     return ResponseEntity.ok(response);
   }

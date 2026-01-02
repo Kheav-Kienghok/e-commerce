@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.diamond.e_commerce.dto.CreateProductRequest;
@@ -24,8 +25,9 @@ import com.diamond.e_commerce.response.ProductResponse;
 import com.diamond.e_commerce.service.interfe.ProductService;
 
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.RequestParam;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -39,6 +41,7 @@ public class ProductController {
       @RequestBody @Valid CreateProductRequest request) {
 
     ApiResponse<Product> response = productService.create(request);
+    log.info("Product created with id={}", response.getData().getId());
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
@@ -48,7 +51,9 @@ public class ProductController {
       @PathVariable Long id,
       @RequestBody @Valid UpdateProductRequest request) {
 
+    log.info("Updating product id={}", id);
     ApiResponse<Product> response = productService.update(id, request);
+    log.info("Product updated id={}", response.getData().getId());
     return ResponseEntity.ok(response);
   }
 
@@ -56,7 +61,9 @@ public class ProductController {
   @DeleteMapping("/{id}")
   public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
 
+    log.info("Deleting product id={}", id);
     ApiResponse<Void> response = productService.delete(id);
+    log.info("Product deleted id={}", id);
     return ResponseEntity.ok(response);
   }
 
@@ -64,6 +71,7 @@ public class ProductController {
   public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> findAll(
       @PageableDefault(size = 10, sort = "id") Pageable pageable) {
 
+    log.debug("Fetching products page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
     ApiResponse<PageResponse<ProductResponse>> response = productService.findAll(pageable);
     return ResponseEntity.ok(response);
   }
@@ -73,6 +81,8 @@ public class ProductController {
       @RequestParam String name,
       @PageableDefault(size = 10) Pageable pageable) {
 
+    log.debug("Searching products with name containing '{}', page={}, size={}", name,
+        pageable.getPageNumber(), pageable.getPageSize());
     ApiResponse<PageResponse<ProductResponse>> response = productService.findByNameContainingIgnoreCase(name, pageable);
     return ResponseEntity.ok(response);
   }

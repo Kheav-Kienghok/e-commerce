@@ -1,10 +1,9 @@
 package com.diamond.e_commerce.service.interfe;
 
-import java.util.Map;
-
 import com.diamond.e_commerce.dto.LoginRequest;
 import com.diamond.e_commerce.dto.RegisterRequest;
 import com.diamond.e_commerce.response.ApiResponse;
+import com.diamond.e_commerce.response.AuthTokenResponse;
 import com.diamond.e_commerce.response.UserResponse;
 
 public interface AuthService {
@@ -23,5 +22,5 @@ public interface AuthService {
    * @param request the login request DTO
    * @return ApiResponse containing JWT token or user info
    */
-  ApiResponse<Map<String, String>> login(LoginRequest request);
+  ApiResponse<AuthTokenResponse> login(LoginRequest request);
 }

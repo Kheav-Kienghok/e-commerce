@@ -19,7 +19,9 @@ import com.diamond.e_commerce.security.AuthUser;
 import com.diamond.e_commerce.service.interfe.ProductService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProdutServiceImpl implements ProductService {
@@ -48,6 +50,7 @@ public class ProdutServiceImpl implements ProductService {
         .build();
 
     productRepository.save(product);
+    log.info("Product created successfully: id={}, name='{}'", product.getId(), product.getName());
 
     return ApiResponse.success(201, "Product created successfully", product);
   }
@@ -56,7 +59,10 @@ public class ProdutServiceImpl implements ProductService {
   public ApiResponse<Product> update(Long id, UpdateProductRequest request) {
 
     Product product = productRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Product not found"));
+        .orElseThrow(() -> {
+          log.warn("Product not found for update: id={}", id);
+          return new RuntimeException("Product not found");
+        });
 
     if (request.getName() != null)
       product.setName(request.getName());
@@ -74,6 +80,7 @@ public class ProdutServiceImpl implements ProductService {
       product.setImageUrl(request.getImageUrl());
 
     productRepository.save(product);
+    log.info("Product updated successfully: id={}, name='{}'", product.getId(), product.getName());
 
     return ApiResponse.success(200, "Product updated successfully", product);
   }
@@ -90,12 +97,14 @@ public class ProdutServiceImpl implements ProductService {
     Product product = optionalProduct.get();
     Long userId = getCurrentUserId();
 
-    // Authorization check
+    // Manual ownership check
     if (!product.getCreatedBy().equals(userId)) {
+      log.warn("User {} is not allowed to delete product id={}", userId, id);
       return ApiResponse.error(403, "You are not allowed to delete this product");
     }
 
     productRepository.delete(product);
+    log.info("Product deleted successfully: id={}", id);
 
     return ApiResponse.success(200, "Product deleted successfully");
   }
@@ -120,6 +129,7 @@ public class ProdutServiceImpl implements ProductService {
             page.hasNext(),
             page.hasPrevious()));
 
+    log.debug("Products fetched: totalElements={}", page.getTotalElements());
     return ApiResponse.success(200, "Products retrieved successfully", response);
   }
 
@@ -142,6 +152,7 @@ public class ProdutServiceImpl implements ProductService {
             page.hasNext(),
             page.hasPrevious()));
 
+    log.debug("Search result: totalElements={}", page.getTotalElements());
     return ApiResponse.success(200, "Products retrieved successfully", response);
   }
 
